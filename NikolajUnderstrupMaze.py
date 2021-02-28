@@ -4,13 +4,14 @@ import math
 import requests
 import numpy
 import random
+import sys
 
-def to_matrix(l, n): # this function turns a 1D list into a 2D list, so it is easier to work with.
+def toMatrix(l, n): # this function turns a 1D list into a 2D list, so it is easier to work with.
 	return [l[i:i+n] for i in range(0, len(l), n)]
 
 def generateLocalMaze(gameState): # this function takes the maze data from the api and turns it into a grid of 0s and 1s. 1 represents a free square and 0 represents an obstacle. The grid is gamesize * 2 + 1 in size.
 	mazeGrid = [] # this list will contain the maze. 
-	XYmaze = to_matrix(gameState["data"], gameState["size"][0]) # this turns the api data into a 2D list
+	XYmaze = toMatrix(gameState["data"], gameState["size"][0]) # this turns the api data into a 2D list
 	for y in XYmaze: # this iterates on the maze vertically
 		xGrid = [[0],[]] # this list contains the layer above and the current layer.
 		for x in y: # this iterates on the maze horizontally
@@ -62,14 +63,21 @@ def pathToInstructions(path): # this functino turns the path from a list of tupl
 		directions.append(directionDict["{},{}".format(difference[0], difference[1])])
 	return directions
 
-def walkTowardsExit(gameState, directions): # this function tells the api to move the pony. 
+def walkTowardsExit(gameState, directions, verbose=False): # this function tells the api to move the pony. 
 	print("Game is winnable. Executing api calls.")
 	urlWalk = 'https://ponychallenge.trustpilot.com/pony-challenge/maze/{}'.format(gameState["maze_id"])
+	urlPrint = "https://ponychallenge.trustpilot.com/pony-challenge/maze/{}/print".format(gameState["maze_id"])
 
 	for i in directions:
 		r = requests.post(urlWalk, json={"direction":i}).json()
+		if verbose:
+			r2 = requests.get(urlPrint).text
+			print(r2, "\r\n")
+		else:
+			print(i, "  ", end="\r")
 
 	print(r)
+	return r
 
 def findPaths(mazeGrid, gameState): # this function uses the pathfinding library to create paths from the mazeGrid and the gamestate. 
 	finder = AStarFinder() # A* is chosen because it is the default pathfinding algorithm. 
@@ -85,7 +93,8 @@ def findPaths(mazeGrid, gameState): # this function uses the pathfinding library
 
 	path, runs = finder.find_path(pony, end, grid)
 	grid.cleanup()
-	pathDomoToEnd, runs2 = finder.find_path(pony, domo, grid)
+	pathDomoToEnd, runs2 = finder.find_path(domo, end, grid)
+	grid.cleanup()
 
 	print(grid.grid_str(path=path, start=pony, end=end))
 	legend = {"#":"obstacle","x":"path","s":"start","e":"end"}
@@ -94,6 +103,10 @@ def findPaths(mazeGrid, gameState): # this function uses the pathfinding library
 	return path, pathDomoToEnd
 
 def main(): # this function creates a maze game and completes it.
+	verbose = False
+	if "-v" in sys.argv:
+		verbose = True
+
 	gameSize = [random.randint(15,25), random.randint(15,25)]
 	difficulty = 10
 
@@ -109,7 +122,7 @@ def main(): # this function creates a maze game and completes it.
 		print("Game is unwinnable, exitting script.")
 		exit()
 
-	walkTowardsExit(gameState, directions)
+	walkTowardsExit(gameState, directions, verbose)
 
 if __name__ == "__main__":
 	main()
