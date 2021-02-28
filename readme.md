@@ -3,21 +3,28 @@ Installation:
 This program is written in python 3. It is not backwards compatible with python 2, because backwards compatibility in python is complicated.
 
 To install dependencies for the script:
-pip3 install pathfinding
-pip3 install requests
-pip3 install numpy
+
+`pip3 install pathfinding`
+
+`pip3 install requests`
+
+`pip3 install numpy`
 
 To run the script on windows:
-py NikolajUnderstrupMaze.py
+
+`py NikolajUnderstrupMaze.py`
 
 To run the script on windows with verbose output (printing maze every time a step is taken):
-py NikolajUnderstrupMaze.py -v
+
+`py NikolajUnderstrupMaze.py -v`
 
 To run the script on linux:
-py NikolajUnderstrupMaze.py
+
+`py NikolajUnderstrupMaze.py`
 
 To run the script on linux with verbose output (printing maze every time a step is taken):
-py NikolajUnderstrupMaze.py -v
+
+`py NikolajUnderstrupMaze.py -v`
 
 
 How the script works:
